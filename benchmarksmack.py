@@ -1,12 +1,17 @@
 import docker
 import argparse
+import os
 
 dockerImage = 'grubb/smack-docker'
 
 def test_toy(timelimit):
 	client = docker.from_env()
-	client.images.pull(dockerImage)
-	container = client.containers.run(dockerImage, detach=True, volumes={''})
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	container = client.containers.run(dockerImage, detach=True, volumes={dir_path + '/toy_example_distrib': {'bind': '/toy', 'mode': 'rw'}})
+	(exit_code, output) = container.exec_run(['smack', '--only-check-valid-deref', '/toy/buggy/2/toy/toy.c'])
+	print exit_code
+	print output
+	container.stop()
 	print "Benchmarking with LAVA toy has not been implemented"
 
 def test_1(timelimit):
